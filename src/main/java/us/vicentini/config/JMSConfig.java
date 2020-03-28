@@ -1,6 +1,6 @@
 package us.vicentini.config;
 
-import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

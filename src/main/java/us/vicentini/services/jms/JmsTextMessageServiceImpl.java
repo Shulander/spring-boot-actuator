@@ -1,6 +1,6 @@
 package us.vicentini.services.jms;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -8,23 +8,15 @@ import javax.jms.Queue;
 
 
 @Service
+@RequiredArgsConstructor
 public class JmsTextMessageServiceImpl implements JmsTextMessageService {
 
-    private Queue textMessageQueue;
-    private JmsTemplate jmsTemplate;
+    private final Queue textMessageQueue;
+    private final JmsTemplate jmsTemplate;
 
-    @Autowired
-    public void setTextMessageQueue(Queue textMessageQueue) {
-        this.textMessageQueue = textMessageQueue;
-    }
-
-    @Autowired
-    public void setJmsTemplate(JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-    }
 
     @Override
     public void sendTextMessage(String msg) {
-        this.jmsTemplate.convertAndSend(this.textMessageQueue, msg);
+        this.jmsTemplate.convertAndSend(textMessageQueue, msg);
     }
 }
