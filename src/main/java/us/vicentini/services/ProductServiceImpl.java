@@ -2,6 +2,7 @@ package us.vicentini.services;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final JmsTextMessageService jmsTextMessageService;
+    private final MeterRegistry meterRegistry;
     private final Counter getProductCounter;
     private final Counter listProductsCounter;
 
@@ -27,10 +29,11 @@ public class ProductServiceImpl implements ProductService {
                               MeterRegistry meterRegistry) {
         this.productRepository = productRepository;
         this.jmsTextMessageService = jmsTextMessageService;
+        this.meterRegistry = meterRegistry;
 
 //        https://blog.autsoft.hu/defining-custom-metrics-in-a-spring-boot-application-using-micrometer/
-        listProductsCounter = meterRegistry.counter("us.vicentini.product.services.listProducts");
-        getProductCounter = Counter.builder("us.vicentini.product.services.getProduct")
+        listProductsCounter = meterRegistry.counter("us.vicentini.services.ProductService.listProducts");
+        getProductCounter = Counter.builder("us.vicentini.services.ProductService.getProduct")
                 .tag("type", "ale")
                 .description("The number of getProduct(id) calls")
                 .register(meterRegistry);
@@ -49,7 +52,10 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> listProducts() {
         jmsTextMessageService.sendTextMessage("Listing Products");
         listProductsCounter.increment();
-        return IteratorUtils.toList(productRepository.findAll().iterator());
+
+        List<Product> products = IteratorUtils.toList(productRepository.findAll().iterator());
+        return meterRegistry.gaugeCollectionSize("us.vicentini.services.ProductService.countProducts", Tags.empty(),
+                                                 products);
     }
 
 }
