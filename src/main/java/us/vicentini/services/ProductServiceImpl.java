@@ -1,5 +1,6 @@
 package us.vicentini.services;
 
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -41,6 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
+    @Timed(value = "us.vicentini.services.ProductServiceImpl.getProduct.timed")
     public Product getProduct(Integer id) {
         jmsTextMessageService.sendTextMessage("Fetching Product ID: " + id);
         getProductCounter.increment();
@@ -48,7 +50,9 @@ public class ProductServiceImpl implements ProductService {
                 .orElse(null);
     }
 
+
     @Override
+    @Timed(value = "us.vicentini.services.ProductServiceImpl.listProducts.timed")
     public List<Product> listProducts() {
         jmsTextMessageService.sendTextMessage("Listing Products");
         listProductsCounter.increment();
